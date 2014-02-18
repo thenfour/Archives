@@ -1,0 +1,99 @@
+http://svn.winprog.net/personal/carl/GlitchenSync/
+http://wiki.winprog.org/wiki/Glitchen_Sync
+
+ABOUT GLITCHEN SYNC
+-------------------
+This program synchronizes multiple local directories. Multiple source and
+destination directories may be used. Filters can be used for both sources and
+destinations.
+
+COMMAND LINE USAGE
+------------------
+Syntax:
+  glitchensync.exe [/verbose] (config file)
+  or
+  glitchensync.exe [/verbose] /test (ntfs sandbox) [(fat sandbox)]
+  or
+  glitchensync.exe [/verbose] (left dir) (right dir) [/md5]
+
+Options:
+  (config file)  Filename of the .xml file to synchronize
+  /verbose       Verbose output
+  /test          Runs internal tests
+  /md5           Forces the left->right sync to check with MD5 file hashes.
+                 By default, dates will be used for NTFS systems and MD5 will
+                 be used everywhere else.
+  (ntfs sandbox) Full path to use as the root of automated testing for NTFS.
+  (fat sandbox)  Full path to use as the root of automated testing for FAT.
+
+Using the source/dest syntax, a basic ONE WAY synchronization will be run,
+copying files from left -> right, without the use of a history database.
+Files in the right directory may be clobbered.
+
+XML FORMAT
+----------
+<GlitchenSync>
+  <script comparisonType="MD5" fileDB="documents.db3" name="Document Backup">
+    <subscriber id="1" root="c:\temp\left"
+		isSyncSource="yes" isSyncDestination="yes">
+      <sourceFilter type="Include" criteria="....doc;....rtf;....txt" />
+      <destinationFilter type="Include" criteria="..." />
+    </subscriber>
+    <subscriber id="2" root="c:\temp\right"
+		isSyncSource="yes" isSyncDestination="yes">
+      <sourceFilter type="Include" criteria="....doc;....rtf;....txt" />
+      <destinationFilter type="Include" criteria="..." />
+    </subscriber>
+  </script>
+</GlitchenSync>
+
+Attribute descriptions:
+fileDB            - File name, either absolute path or relative to the location
+                    of the xml file, to store file history in.
+                    
+script name       - Name of the sync script. Not really used for anything.
+                    
+comparisonType    - Can be either "MD5" or "ModifedDateUTC", this is the method
+                    of file comparison. In many situations (and ONLY on NTFS
+                    filesystems), you can avoid having to MD5 checksum every
+                    file before synchronizing. For best accuracy, use "MD5".
+                    
+subscirber id     - Unique ID for this subscriber. This is required. The reason
+                    it is necessary is so that you can change paths and retain
+                    history seamlessly. This is case-INsensitive, and
+                    surrounding whitespace is trimmed.
+
+subscriber root   - The absolute directory for this subscriber. A subscriber
+                    is a directory that plays a role in synchronization. For
+                    typical left->right synchronization, there will be two
+                    subscribers.
+
+isSyncSource      - specifies whether this subscriber should be used for
+                    gathering information about file changes. Source
+                    subscribers define the changes that will be propagated to
+                    destination subscribers.
+                    
+isSyncDestination - if a subscriber is a destination, then file changes will be
+                    performed there. Otherwise, file changes will not propagate
+                    to this directory.
+                    
+sourceFilter type - Can be either "Include" or "Exclude". Specifies whether the
+                    specified criteria should exclude files or include them.
+                    You should normally have at least one filter with criteria
+                    "..." to include everything under the directory,
+                    recursively.
+
+criteria          - A perforce-style file spec, relative to the subscriber root
+                    that describes the files to include or exclude. Example
+                    criteria that includes all .mp3, .flac, and .wma files
+                    under the root:
+                    "...*.mp3;...*.flac;...*.wma"
+
+NOTES
+-----
+* Conflicted files are simply left alone.
+
+* Files are actually deleted, not sent to the recycle bin.
+
+* You can check %ERRORLEVEL% to handle errors. Error level 0 means success.
+  Anything else means an error.

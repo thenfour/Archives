@@ -1,0 +1,11 @@
+vertical
+{
+	*splitter, left, right(100%);
+};
+
+horizontal
+{
+	*left(<leftSize>);// callback.
+	*splitter(<splitterWidth>);// constant
+	*right(flex);
+};

@@ -1,0 +1,214 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,27
+ PRODUCTVERSION 1,0,0,27
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", " \0"
+            VALUE "FileDescription", "\0"
+            VALUE "FileVersion", "1, 0, 0, 27\0"
+            VALUE "InternalName", "\0"
+            VALUE "LegalCopyright", "Copyright © 2001\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "VSSEx\0"
+            VALUE "ProductVersion", "1, 0, 0, 27\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MANAGER DIALOG DISCARDABLE  0, 0, 238, 114
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "VSSEx Manager"
+MENU IDR_MENU1
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_DATABASE,55,7,158,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LOCALROOT,55,25,158,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_USER,55,43,158,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PASSWORD,55,61,158,14,ES_AUTOHSCROLL
+    CONTROL         "Cascade context menus",IDC_CASCADE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,55,79,92,10
+    DEFPUSHBUTTON   "OK",IDOK,55,93,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,109,93,50,14
+    PUSHBUTTON      "Apply",IDC_APPLY,163,93,50,14
+    LTEXT           "User:",IDC_STATIC,7,45,18,8
+    LTEXT           "Database:",IDC_STATIC,7,9,34,8
+    LTEXT           "Local Root:",IDC_STATIC,7,27,38,8
+    LTEXT           "Password:",IDC_STATIC,7,62,34,8
+    PUSHBUTTON      "...",IDC_BROWSEDATABASE,217,7,14,14
+    PUSHBUTTON      "...",IDC_BROWSEROOT,217,26,14,14
+END
+
+IDD_ABOUT DIALOG DISCARDABLE  0, 0, 259, 185
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "About VSSEx"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,202,164,50,14
+    LTEXT           "VSSEx v1.0.0",IDC_STATIC,7,7,45,8
+    LTEXT           "Carl Corcoran",IDC_STATIC,7,19,44,8
+    EDITTEXT        IDC_EULA,7,31,245,129,ES_MULTILINE | ES_READONLY | 
+                    WS_VSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_MANAGER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 231
+        VERTGUIDE, 55
+        VERTGUIDE, 163
+        VERTGUIDE, 217
+        VERTGUIDE, 231
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 107
+        HORZGUIDE, 21
+        HORZGUIDE, 39
+        HORZGUIDE, 75
+        HORZGUIDE, 93
+    END
+
+    IDD_ABOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 252
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 178
+        HORZGUIDE, 15
+        HORZGUIDE, 27
+        HORZGUIDE, 160
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON    DISCARDABLE     "Key.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENU DISCARDABLE 
+BEGIN
+    POPUP "Help"
+    BEGIN
+        MENUITEM "&Help Topics...",             IDM_HELP
+        MENUITEM "&About VSSEx...",             IDM_ABOUT
+    END
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

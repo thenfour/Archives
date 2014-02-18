@@ -1,0 +1,31 @@
+
+
+#pragma once
+#include <windows.h>
+#include <shlobj.h>
+#include <initguid.h>
+
+// Unused:
+// {40DF0B56-A520-4ec8-9997-64B3049891BF}
+//static const GUID CLSID_SdExTest = 
+//{ 0x40df0b56, 0xa520, 0x4ec8, { 0x99, 0x97, 0x64, 0xb3, 0x4, 0x98, 0x91, 0xbf } };
+
+
+// {1F342806-9FE9-416f-8012-4EADE7D1722A}
+static const GUID CLSID_VSSExIconOverlayCheckedOut = 
+{ 0x1f342806, 0x9fe9, 0x416f, { 0x80, 0x12, 0x4e, 0xad, 0xe7, 0xd1, 0x72, 0x2a } };
+
+
+// {95041189-E51A-465c-AB04-6DD1FC327E93}
+static const GUID CLSID_VSSExIconOverlayCheckedIn = 
+{ 0x95041189, 0xe51a, 0x465c, { 0xab, 0x4, 0x6d, 0xd1, 0xfc, 0x32, 0x7e, 0x93 } };
+
+
+// {8BF3EA67-4316-492d-B538-895CCC44CFFA}
+static const GUID CLSID_VSSExContext = 
+{ 0x8bf3ea67, 0x4316, 0x492d, { 0xb5, 0x38, 0x89, 0x5c, 0xcc, 0x44, 0xcf, 0xfa } };
+
+
+// Helper...
+typedef IUnknown __RPC_FAR *PUNKNOWN;
+

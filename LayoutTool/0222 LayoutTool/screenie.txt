@@ -1,0 +1,90 @@
+
+vertical
+{
+	(spacing);
+	{
+		*General
+		{
+			(group.margin.top);
+			*Label1(label.height);
+			*Action(radio.height);
+			*Cursor(radio.height);
+			*Status(radio.height);
+			*Start(radio.height);
+			*Archive(radio.height);
+			{
+				(label.offset.top);
+				*Label2(label.height);
+			}
+			{
+				*ArchiveLimit(editbox.height);
+			}
+			{
+				(label.offset.top);
+				*Label3(label.height);
+			};
+			(group.margin.bottom);
+		};
+		(spacing);
+		*Destinations
+		{
+			(group.margin.top);
+			{
+				*DestList;
+			}
+			{
+				*Up(button.height);
+				(spacing);
+				*Down(button.height);
+			};
+			(spacing);
+			*New, Edit, Duplicate, Remove (button.height);
+			(group.margin.bottom);
+		};
+		(spacing);
+		*Ok, Cancel(button.height);
+	};
+	(spacing);
+};
+
+horizontal
+{
+	(spacing);
+	*General, Destinations
+	{
+		(group.margin.left);
+		{
+			*Label1, Action, Cursor, Status, Start, Archive;
+		}
+		{
+			(spacing.clarityindent);
+			*Label2(150px);
+			*ArchiveLimit(150px);
+			*Label3;
+		}
+		{
+			*DestList;
+			(spacing);
+			*Up, Down(button.height);// make them square.
+		}
+		{
+			(flex);
+			*New(button.width);
+			(spacing);
+			*Edit(button.width);
+			(spacing);
+			*Duplicate(button.width);
+			(spacing);
+			*Remove(button.width);
+		};
+		(group.margin.right);
+	}
+	{
+		(flex);
+		*Ok(button.width);
+		(spacing);
+		*Cancel(button.width);
+	};
+	(spacing);
+};
+

@@ -1,0 +1,7 @@
+h1           { font-family: Arial; font-size: 18pt; color: #60B0FF; font-weight: bold }
+h2           { font-family: arial; font-size: 16pt; color: #A05000; font-weight: bold }
+h3           { font-family: Arial; font-size: 15pt; color: #60B0FF; font-weight: bold }
+dt           { font-family: verdana; font-size: 10pt; color: #CCFFFF; font-style: italic; font-weight: bold}
+dd           { }
+ul, li       { font-family: verdana; font-size: 11pt; color: #CCFFFF}
+body         { background-color: #000; font-family:verdana; font-size:10pt; color:#CCE }

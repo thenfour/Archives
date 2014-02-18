@@ -1,0 +1,1 @@
+this project is cooler than you think.  it counts lines in files.  but the real magic is the code in pathmatchspec.cpp.  If you have ever used perforce, you know about the cool "..." wildcard they use (in addition to '*' and '?').  This thing simulates that behavior.

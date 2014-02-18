@@ -1,0 +1,974 @@
+Microsoft (R) Macro Assembler Version 6.14.8444		    03/05/04 08:13:07
+1kb.asm							     Page 1 - 1
+
+
+				;
+				; 1kb vector balls
+				;
+				; by magey
+				;
+
+				.386
+				.model flat, stdcall
+				option casemap :none
+
+				include 1kb.inc
+			      C ; Some definitions :)
+			      C 
+			      C LoadLibraryA PROTO :DWORD
+ = LoadLibraryA		      C LoadLibrary equ <LoadLibraryA>
+			      C GetProcAddress PROTO :DWORD,:DWORD
+			      C 
+ = 400			      C TheWidth    equ <400>
+ = 300			      C TheHeight   equ <300>
+ = 10			      C NUMBALLS    equ <10>
+ = 0			      C Y_AXIS      equ <0>
+ = 1			      C X_AXIS      equ <1>
+ = 2			      C Z_AXIS      equ <2>
+			      C 
+ = 80000000h		      C WS_POPUP      equ <80000000h>
+ = 80000000h		      C CW_USEDEFAULT equ <80000000h>
+ = 1h			      C PM_REMOVE     equ <1h>
+ = 1bh			      C VK_ESCAPE     equ <1bh>
+			      C 
+ = 1h			      C WM_CREATE   equ <1h>
+ = 2h			      C WM_DESTROY  equ <2h>
+ = 10h			      C WM_CLOSE    equ <10h>
+ = 100h			      C WM_KEYDOWN  equ <100h>
+ = 12h			      C WM_QUIT     equ <12h>
+			      C 
+ 00000008		      C POINT STRUCT
+ 00000000  00000000	      C   x  DWORD ?
+ 00000004  00000000	      C   y  DWORD ?
+			      C POINT ENDS
+			      C 
+ 0000001C		      C MSG STRUCT
+ 00000000  00000000	      C   hwnd      DWORD      ?
+ 00000004  00000000	      C   message   DWORD      ?
+ 00000008  00000000	      C   wParam    DWORD      ?
+ 0000000C  00000000	      C   lParam    DWORD      ?
+ 00000010  00000000	      C   time      DWORD      ?
+ 00000014  00000000	      C   pt        POINT      <>
+	   00000000
+			      C MSG ENDS
+			      C 
+ 00000030		      C WNDCLASSEX STRUCT
+ 00000000  00000000	      C   cbSize            DWORD      ?
+ 00000004  00000000	      C   style             DWORD      ?
+ 00000008  00000000	      C   lpfnWndProc       DWORD      ?
+ 0000000C  00000000	      C   cbClsExtra        DWORD      ?
+ 00000010  00000000	      C   cbWndExtra        DWORD      ?
+ 00000014  00000000	      C   hInstance         DWORD      ?
+ 00000018  00000000	      C   hIcon             DWORD      ?
+ 0000001C  00000000	      C   hCursor           DWORD      ?
+ 00000020  00000000	      C   hbrBackground     DWORD      ?
+ 00000024  00000000	      C   lpszMenuName      DWORD      ?
+ 00000028  00000000	      C   lpszClassName     DWORD      ?
+ 0000002C  00000000	      C   hIconSm           DWORD      ?
+			      C WNDCLASSEX ENDS
+			      C 
+			      C ; Used DirectDraw structs definitions
+ 00000020		      C DDPIXELFORMAT STRUCT
+ 00000000  00000000	      C     dwSize               DWORD ?
+ 00000004  00000000	      C     dwFlags              DWORD ?
+ 00000008  00000000	      C     dwFourCC             DWORD ?
+ 0000000C  00000000	      C     dwRGBBitCount        DWORD ?
+ 00000010  00000000	      C     dwRBitMask           DWORD ?
+ 00000014  00000000	      C     dwGBitMask           DWORD ?
+ 00000018  00000000	      C     dwBBitMask           DWORD ?
+ 0000001C  00000000	      C     dwRGBAlphaBitMask    DWORD ?
+			      C DDPIXELFORMAT ENDS
+			      C 
+ 00000010		      C DDSCAPS2 STRUCT
+ 00000000  00000000	      C     dwCaps  DWORD ?
+ 00000004  00000000	      C     dwCaps2 DWORD ?
+ 00000008  00000000	      C     dwCaps3 DWORD ?
+ 0000000C  00000000	      C     dwCaps4 DWORD ? 
+			      C DDSCAPS2 ENDS
+			      C 
+ 00000008		      C DDCOLORKEY STRUCT
+ 00000000  00000000	      C     dwColorSpaceLowValue   DWORD ?
+ 00000004  00000000	      C     dwColorSpaceHighValue  DWORD ?
+			      C DDCOLORKEY ENDS
+			      C 
+ 0000006C		      C DDSURFACEDESC2 STRUCT
+ 00000000  00000000	      C     dwSize              DWORD ?
+ 00000004  00000000	      C     dwFlags             DWORD ?
+ 00000008  00000000	      C     dwHeight            DWORD ?
+ 0000000C  00000000	      C     dwWidth             DWORD ?
+ 00000010  00000000	      C     lPitch              DWORD ?
+ 00000014  00000000	      C     dwBackBufferCount   DWORD ?
+ 00000018  00000000	      C     dwRefreshRate       DWORD ?
+ 0000001C  00000000	      C     dwAlphaBitDepth     DWORD ?
+ 00000020  00000000	      C     dwReserved          DWORD ?
+ 00000024  00000000	      C     lpSurface           DWORD ?
+ 00000028  00000000	      C     ddckCKDestOverlay   DDCOLORKEY <>
+	   00000000
+ 00000030  00000000	      C     ddckCKDestBlt       DDCOLORKEY <>
+	   00000000
+ 00000038  00000000	      C     ddckCKSrcOverlay    DDCOLORKEY <>
+	   00000000
+ 00000040  00000000	      C     ddckCKSrcBlt        DDCOLORKEY <>
+	   00000000
+ 00000048  00000000	      C     ddpfPixelFormat     DDPIXELFORMAT <>
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+ 00000068  00000000	      C     ddsCaps             DWORD ?
+			      C ;    dwTextureStage      DWORD ?
+			      C DDSURFACEDESC2 ENDS
+			      C 
+ 00000004		      C PALETTEENTRY STRUCT
+ 00000000  00		      C     peRed     BYTE ?
+ 00000001  00		      C     peGreen   BYTE ?
+ 00000002  00		      C     peBlue    BYTE ?
+ 00000003  00		      C     peFlags   BYTE ?
+			      C PALETTEENTRY ENDS
+			      C 
+ 0000000C		      C VERTEX STRUCT
+ 00000000  00000000	      C     x   REAL4 ?
+ 00000004  00000000	      C     y   REAL4 ?
+ 00000008  00000000	      C     z   REAL4 ?
+			      C VERTEX ENDS
+			      C 
+			      C 
+			      C ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+			      C ;;
+			      C ;; DirectDraw vtable offsets
+			      C ;;
+			      C ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+			      C 
+ = 8h			      C IUnknownRelease                 equ <8h>
+			      C 
+ = 18h			      C DDrawCreateSurface              equ <18h>
+ = 14h			      C DDrawCreatePalette              equ <14h>
+ = 50h			      C DDrawSetCooperativeLevel        equ <50h>
+ = 54h			      C DDrawSetDisplayMode             equ <54h>
+ = 18h			      C DDrawCreateSurface              equ <18h>
+ = 14h			      C DDrawCreatePalette              equ <14h>
+ = 4ch			      C DDrawRestoreDisplayMode         equ <4ch>
+			      C 
+ = 30h			      C DDrawSurfaceGetAttachedSurface  equ <30h>
+ = 7ch			      C DDrawSurfaceSetPalette          equ <7ch>
+ = 64h			      C DDrawSurfaceLock                equ <64h>
+ = 80h			      C DDrawSurfaceUnlock              equ <80h>
+ = 2ch			      C DDrawSurfaceFlip                equ <2ch>
+			      C 
+ = 18h			      C DDrawPaletteSetEntries          equ <18h>
+			      C 
+ = 53h			      C FINAL_DDSCL                     equ <53h>
+ = 21h			      C FINAL_DDESC_FLAGS               equ <21h>
+ = 4218h		      C FINAL_DDESC_DDSCAPS             equ <4218h>
+ = 1h			      C FINAL_DDLOCK                    equ <1h>
+ = 1h			      C FINAL_DDFLIP                    equ <1h>
+ = 44h			      C FINAL_DDPCAPS                   equ <44h>
+ = 4h			      C DDSCAPS_BACKBUFFER              equ <4h>
+			      C 
+				includelib D:\masm32\lib\kernel32.lib
+
+
+ 00000000			.code   
+ 00000000			start:
+
+				    ; Load user32.dll into our address space
+ 00000000  68 00000273 R	    push offset szUser32
+ 00000005  E8 00000000 E	    call LoadLibrary
+				    ; Store the module handle in ebp
+ 0000000A  8B E8		    mov ebp, eax
+				    
+				    ; Populate USER32.DLL function pointers
+ 0000000C  BE 00000448 R	    mov esi, offset FunctionTable
+ 00000011  BF 0000027F R	    mov edi, offset szFunctionNames
+ 00000016  33 DB		    xor ebx, ebx             ; We're gonna use ebx as a counter because it doesn't get changed by GetProcAddress
+ 00000018			InitLoop: 
+ 00000018  57			    push edi                 ; Name of function to retrieve
+ 00000019  55			    push ebp                 ; Module handle of user32.dll
+ 0000001A  E8 00000000 E	    call GetProcAddress
+ 0000001F  89 04 9E		    mov [esi + ebx * 4], eax ; Store the address in the fp table
+ 00000022  33 C0		    xor eax, eax
+ 00000024  F2/ AE		    repne scasb              ; Find the next string in the function names table
+ 00000026  43			    inc ebx
+ 00000027  80 FB 03		    cmp bl, NumberOfFunctions
+ 0000002A  78 EC		    js InitLoop
+
+ 0000002C  B0 01		    mov al, 1
+ 0000002E  C1 E0 1F		    shl eax, 31  ; for WS_POPUP/CW_USEDEFAULT
+ 00000031  33 C9		    xor ecx, ecx ; for push 0
+
+ 00000033  51			    push ecx ; for the ShowCursor call later, save one byte :)
+				    ; Push the paramters for CreateWindowEx
+ 00000034  51			    push ecx
+ 00000035  51			    push ecx
+ 00000036  51			    push ecx
+ 00000037  51			    push ecx
+ 00000038  68 0000012C		    push TheHeight
+ 0000003D  68 00000190		    push TheWidth
+ 00000042  51			    push ecx
+ 00000043  50			    push eax ; CW_USEDEFAULT (80000000h)
+ 00000044  50			    push eax ; WS_POPUP (80000000h)
+ 00000045  51			    push ecx
+ 00000046  68 0000027A R	    push offset szEDIT
+ 0000004B  51			    push ecx
+				    ; Create the window
+ 0000004C  FF 56 08		    call DWORD PTR [esi + CreateWindowEx]
+ 0000004F  8B F8		    mov edi, eax ; was hMainWnd, removed to save some bytes
+
+ 00000051  FF 56 04		    call DWORD PTR [esi + ShowCursor]
+				    
+				    ; Load ddraw.dll into our address space
+ 00000054  68 000002A7 R	    push offset szDDraw
+ 00000059  E8 00000000 E	    call LoadLibrary
+
+ 0000005E  BE 00000454 R	    mov esi, offset lpDD
+				     
+				    ; Create the DirectDraw object
+				    ; Get the address of the function
+ 00000063  68 000002AD R	    push offset szDirectDrawCreate
+ 00000068  50			    push eax
+ 00000069  E8 00000000 E	    call GetProcAddress
+ 0000006E  33 C9		    xor ecx, ecx
+				    ; And call it (eax contains the address)
+ 00000070  51			    push ecx
+ 00000071  56			    push esi
+ 00000072  51			    push ecx
+ 00000073  FF D0		    call eax
+
+				    ; Give esi the value of lpDD
+ 00000075  8B 36		    mov esi, [esi]
+				    
+				    ; Call SetCooperativeLevel, to set all the attributes of our ddraw app
+ 00000077  6A 53		    push FINAL_DDSCL ; DDSCL_EXCLUSIVE | DDSCL_ALLOWREBOOT | DDSCL_ALLOWMODEX | DDSCL_FULLSCREEN
+ 00000079  57			    push edi ; Window handle from CreateWindowEx
+ 0000007A  8B 16		    mov edx, [esi]
+ 0000007C  56			    push esi
+ 0000007D  FF 52 50		    call DWORD PTR [edx + DDrawSetCooperativeLevel]
+
+				    ; Set display mode to 400x300
+ 00000080  50			    push eax
+ 00000081  50			    push eax
+ 00000082  6A 08		    push 8 ; 8 bits
+ 00000084  68 0000012C		    push TheHeight
+ 00000089  68 00000190		    push TheWidth
+ 0000008E  8B 16		    mov edx, [esi]
+ 00000090  56			    push esi
+ 00000091  FF 52 54		    call DWORD PTR [edx + DDrawSetDisplayMode]
+
+				    ; We're gonna use ebp from now on with relative displacements, so beware
+ 00000094  BD 00000464 R	    mov ebp, offset DDSurfaceDesc
+
+ 00000099  8D 5D F4		    lea ebx, [ebp - 12] ; offset lpDDPrimary
+				    ; Populate the struct with our values
+ 0000009C  C6 45 00 6C		    mov BYTE PTR [ebp], size DDSurfaceDesc       ; DDSurfaceDesc.dwSize
+ 000000A0  C6 45 04 21		    mov BYTE PTR [ebp + 4], FINAL_DDESC_FLAGS    ; DDSurfaceDesc.dwFlags
+ 000000A4  66| C7 45 68		    mov WORD PTR [ebp + 104], FINAL_DDESC_DDSCAPS ; DDSurfaceDesc.ddsCaps
+	   4218
+ 000000AA  C6 45 14 01		    mov BYTE PTR [ebp + 20], 1 ; DDSurfaceDesc.dwBackBufferCount
+				    ; Create the primary surface
+ 000000AE  50			    push eax
+ 000000AF  53			    push ebx ; offset lpDDPrimary
+ 000000B0  55			    push ebp ; offset DDSurfaceDesc
+ 000000B1  8B 16		    mov edx, [esi]
+ 000000B3  56			    push esi
+ 000000B4  FF 52 18		    call DWORD PTR [edx + DDrawCreateSurface]
+
+				    ; Get the backbuffer surface
+ 000000B7  8D 45 6C		    lea eax, [ebp + size DDSURFACEDESC2] ; offset DDSCaps
+ 000000BA  8D 5D F8		    lea ebx, [ebp - 8] ; offset lpDDBackBuffer
+				    
+ 000000BD  C6 00 04		    mov BYTE PTR [eax], DDSCAPS_BACKBUFFER ; DDSCaps.dwCaps
+ 000000C0  53			    push ebx ; offset lpDDBackbuffer
+ 000000C1  50			    push eax ; offset DDSCaps
+ 000000C2  8B 55 F4		    mov edx, [ebp - 12] ; lpDDPrimary
+ 000000C5  52			    push edx
+ 000000C6  8B 12		    mov edx, [edx]
+ 000000C8  FF 52 30		    call DWORD PTR [edx + DDrawSurfaceGetAttachedSurface]
+
+ 000000CB  8D 5D FC		    lea ebx, [ebp - 4]  ; offset lpDDPalette
+				    ; Create the palette
+ 000000CE  50			    push eax
+ 000000CF  53			    push ebx ; offset lpDDPalette
+ 000000D0  68 000002D4 R	    push offset BallPal
+ 000000D5  6A 44		    push FINAL_DDPCAPS
+ 000000D7  8B 16		    mov edx, [esi] ; Remember esi contains [lpDD]
+ 000000D9  56			    push esi
+ 000000DA  FF 52 14		    call DWORD PTR [edx + DDrawCreatePalette]
+				    
+				    ; Set the palette on the primary surface
+ 000000DD  FF 33		    push [ebx] ; lpDDPalette
+ 000000DF  8B 55 F4		    mov edx, [ebp - 12] ; lpDDPrimary
+ 000000E2  52			    push edx
+ 000000E3  8B 12		    mov edx, [edx]
+ 000000E5  FF 52 7C		    call DWORD PTR [edx + DDrawSurfaceSetPalette]
+
+ 000000E8			MessageLoopStart:
+ 000000E8  8D 75 E4		    lea esi, [ebp - 28] ; FunctionTable
+				    
+ 000000EB  33 C9		    xor ecx, ecx
+ 000000ED  6A 01		    push PM_REMOVE
+ 000000EF  51			    push ecx
+ 000000F0  51			    push ecx
+ 000000F1  51			    push ecx
+ 000000F2  56			    push esi
+ 000000F3  83 2C 24 1C		    sub DWORD PTR [esp], 28 ; Msg
+ 000000F7  FF 16		    call DWORD PTR [esi + PeekMessage]
+
+ 000000F9  80 7D D0 1B		    cmp BYTE PTR [ebp - 16 - 12 - 20], VK_ESCAPE  ; Msg.wParam
+ 000000FD  0F 84 000000BD	    je MessageLoopEnd
+
+ 00000103			RenderMain:
+				    ; Lock the surface
+ 00000103  33 C0		    xor eax, eax
+ 00000105  50			    push eax
+ 00000106  6A 01		    push FINAL_DDLOCK
+ 00000108  55			    push ebp
+ 00000109  50			    push eax
+ 0000010A  8B 45 F8		    mov eax, [ebp - 8] ; lpDDBackBuffer
+ 0000010D  8B 10		    mov edx, [eax]
+ 0000010F  50			    push eax
+ 00000110  FF 52 64		    call DWORD PTR [edx + DDrawSurfaceLock]
+
+				    ; Clear buffer
+ 00000113  8B 7D 24		    mov edi, [ebp + 36] ; Put our locked surface memory pointer into edi (DDSurfaceDesc.lpSurface)
+ 00000116  57			    push edi            ; save it for later use
+ 00000117  6A 4B		    push TheHeight / 4
+ 00000119  59			    pop ecx
+ 0000011A  0F AF 4D 10		    imul ecx, DWORD PTR [ebp + 16] ; DDSurfaceDesc.lPitch
+ 0000011E  F3/ AB		    rep stosd ; eax is alrady zero from the return value of lpDDBackBuffer->Lock()
+
+				    ; Restore the surface pointer to the initial position
+ 00000120  5F			    pop edi
+
+				    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+				    ;;
+				    ;; Rotate, project, and draw the balls
+				    ;;
+				    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ 00000121  83 C5 6C		    add ebp, size DDSURFACEDESC2 ; We do this so we can have displacement
+				                                 ; in the +/-127 range, so we can save space
+				    
+				    ; Increase the angle
+ 00000124  D9 45 1C		    fld REAL4 PTR [ebp + size DDSCAPS2 + 12] ; RotationAngle
+ 00000127  D8 05 000002C8 R	    fadd AngleStep
+ 0000012D  D9 5D 1C		    fstp REAL4 PTR [ebp + size DDSCAPS2 + 12] ; RotationAngle
+
+ 00000130  BB 000002BE R	    mov ebx, offset LENSDIST
+ 00000135  8D 75 24		    lea esi, [ebp + size DDSCAPS2 + 20]
+				    
+ 00000138  33 C9		    xor ecx, ecx
+ 0000013A			RotationLoop:
+				    ; Init ball values
+ 0000013A  8B 53 0E		    mov edx, [ebx + 14]
+ 0000013D  89 16		    mov [esi], edx
+ 0000013F  8B 53 12		    mov edx, [ebx + 18]
+ 00000142  89 56 04		    mov [esi + 4], edx
+ 00000145  33 D2		    xor edx, edx               ; equals 0, was REAL4 PTR BallZ, removed to save those 4 bytes
+ 00000147  89 56 08		    mov [esi + 8], edx         ; edx is zero now, and we are going to take advantage of that :)
+				    
+				    ; Adjust the angle
+ 0000014A  8B C1		    mov eax, ecx
+ 0000014C  6B C0 0A		    imul eax, 10
+ 0000014F  89 45 18		    mov [ebp + size DDSCAPS2 + 8], eax        ;AngleFactor
+ 00000152  D9 45 1C		    fld REAL4 PTR [ebp + size DDSCAPS2 + 12]  ;RotationAngle
+ 00000155  DA 45 18		    fiadd DWORD PTR [ebp + size DDSCAPS2 + 8] ;AngleFactor
+ 00000158  D9 5D 20		    fstp REAL4 PTR [ebp + size DDSCAPS2 + 16] ;IncAngle
+
+ 0000015B  33 C0		    xor eax, eax
+ 0000015D			RotateAxis:
+ 0000015D  E8 0000005F		    call RotateBall
+ 00000162  40			    inc eax
+ 00000163  3C 03		    cmp al, 3
+ 00000165  75 F6		    jne RotateAxis
+
+				    ; Calculate projected positions of X and Y
+ 00000167  DF 03		    fild WORD PTR [ebx]
+ 00000169  D9 C0		    fld st(0)
+ 0000016B  D8 66 08		    fsub REAL4 PTR [esi + 8]
+
+				    ; Calculate X
+ 0000016E  D9 06		    fld REAL4 PTR [esi]
+ 00000170  D8 CA		    fmul st(0), st(2)
+ 00000172  D8 F1		    fdiv st(0), st(1)
+ 00000174  DB 5D 10		    fistp DWORD PTR [ebp + size DDSCAPS2]
+
+				    ; Calculate Y
+ 00000177  D9 46 04		    fld REAL4 PTR [esi + 4]
+ 0000017A  D8 CA		    fmul st(0), st(2)
+ 0000017C  D8 F1		    fdiv st(0), st(1)
+ 0000017E  DB 5D 14		    fistp DWORD PTR [ebp + size DDSCAPS2 + 4]
+
+				    ; Clean FPU stack
+ 00000181  DD C0		    ffree st(0)
+ 00000183  DD C1		    ffree st(1)
+
+ 00000185  81 45 10		    add DWORD PTR [ebp + size DDSCAPS2], TheWidth / 2
+	   000000C8
+ 0000018C  B0 96		    mov al, TheHeight / 2
+ 0000018E  2B 45 14		    sub eax, [ebp + size DDSCAPS2 + 4]
+ 00000191  89 45 14		    mov [ebp + size DDSCAPS2 + 4], eax
+
+ 00000194  E8 00000086		    call DrawBall
+				    
+ 00000199  41			    inc ecx
+ 0000019A  80 F9 0A		    cmp cl, NUMBALLS
+ 0000019D  75 9B		    jne RotationLoop
+
+				    ; Unlock the surface
+ 0000019F  52			    push edx ; remember edx is zero? :)
+ 000001A0  8B 45 8C		    mov eax, [ebp - size DDSURFACEDESC2 - 8] ; lpDDBackbuffer
+ 000001A3  8B 10		    mov edx, [eax]
+ 000001A5  50			    push eax
+ 000001A6  FF 92 00000080	    call DWORD PTR [edx + DDrawSurfaceUnlock]
+				    
+				    ; Flip the backbuffer into the primary surface
+ 000001AC  6A 01		    push FINAL_DDFLIP
+ 000001AE  50			    push eax
+ 000001AF  8B 45 88		    mov eax, [ebp - size DDSURFACEDESC2 - 12] ; lpDDPrimary
+ 000001B2  8B 10		    mov edx, [eax]
+ 000001B4  50			    push eax
+ 000001B5  FF 52 2C		    call DWORD PTR [edx + DDrawSurfaceFlip]
+
+ 000001B8  83 ED 6C		    sub ebp, size DDSURFACEDESC2 ; return the pointer to it's original state
+ 000001BB  E9 FFFFFF28		    jmp MessageLoopStart
+				    
+ 000001C0			MessageLoopEnd:
+ 000001C0  C3			    ret
+
+
+				;
+				; Rotate the ball struct around the specified axis.
+				;
+				; Paramter is the axis to rotate around (X_AXIS / Y_AXIS / Z_AXIS)
+				;
+				; Some equotes for local variables
+ = REAL4 PTR [ebp - 4]		APiSin    equ <REAL4 PTR [ebp - 4]>
+ = REAL4 PTR [ebp - 8]		APiCos    equ <REAL4 PTR [ebp - 8]>
+
+ 000001C1			RotateBall PROC
+ 000001C1  C8 0008 00		    enter 8, 0
+ 000001C5  60			    pushad
+				    
+ 000001C6  3C 01		    cmp al, X_AXIS
+ 000001C8  78 11		    js RotateY
+ 000001CA  74 07		    je RotateX
+
+				    ; esi contains: offset TheBall
+ 000001CC			RotateZ:
+ 000001CC  8D 06		    lea eax, [esi]     ; TheBall.x
+ 000001CE  8D 56 04		    lea edx, [esi + 4] ; TheBall.y
+ 000001D1  EB 0D		    jmp DoRotation
+ 000001D3			RotateX:
+ 000001D3  8D 46 04		    lea eax, [esi + 4] ; TheBall.y
+ 000001D6  8D 56 08		    lea edx, [esi + 8] ; TheBall.z
+ 000001D9  EB 05		    jmp DoRotation
+ 000001DB			RotateY:
+ 000001DB  8D 46 08		    lea eax, [esi + 8] ; TheBall.z
+ 000001DE  8D 16		    lea edx, [esi]     ; TheBall.x
+
+				    ;
+				    ; Our formula is this
+				    ;
+				    ; NewComponent1 = (OldComponent1 * Cos(Angle * PI/180 * Cos(Factor))) - (OldComponent2 * Sin(Angle * PI/180 / Sin(Factor)))
+				    ; NewComponent2 = (OldComponent2 * Cos(Angle * PI/180 / Sin(Factor))) + (OldComponent1 * Sin(Angle * PI/180 * Cos(Factor)))    
+				    ;
+ 000001E0			DoRotation:
+ 000001E0  BF 000002C0 R	    mov edi, offset ANGLECOS
+
+ 000001E5  D9 02		    fld REAL4 PTR [edx]
+ 000001E7  D9 00		    fld REAL4 PTR [eax]
+
+				    ; Calculate 1st component, and save common used values
+ 000001E9  D9 07		    fld REAL4 PTR [edi]      ; ANGLECOS
+ 000001EB  D8 4E FC		    fmul REAL4 PTR [esi - 4]     ; IncAngle
+ 000001EE  D9 55 F8		    fst APiCos
+ 000001F1  D9 FF		    fcos
+ 000001F3  D8 C9		    fmul st(0), st(1)
+
+ 000001F5  D9 47 04		    fld REAL4 PTR [edi + 4]  ; ANGLESIN
+ 000001F8  D8 4E FC		    fmul REAL4 PTR [esi - 4]     ; IncAngle
+ 000001FB  D9 55 FC		    fst APiSin
+ 000001FE  D9 FE		    fsin
+ 00000200  D8 CB		    fmul st(0), st(3)
+				    
+ 00000202  DE E9		    fsubp st(1), st(0)
+
+				    ; Calculate 2nd component, use saved values from before
+ 00000204  D9 45 FC		    fld APiSin
+ 00000207  D9 FF		    fcos
+ 00000209  D8 CB		    fmul st(0), st(3)
+
+ 0000020B  D9 45 F8		    fld APiCos
+ 0000020E  D9 FE		    fsin
+ 00000210  D8 CB		    fmul st(0), st(3)
+				    
+ 00000212  DE C1		    faddp st(1), st(0)
+				    
+ 00000214  D9 1A		    fstp REAL4 PTR [edx]
+ 00000216  D9 18		    fstp REAL4 PTR [eax]
+
+ 00000218			EndRotation:
+				    ; Clean FPU stack
+ 00000218  DD C0		    ffree st(0)
+ 0000021A  DD C1		    ffree st(1)
+
+ 0000021C  61			    popad
+ 0000021D  C9			    leave
+ 0000021E  C3			    ret
+ 0000021F			RotateBall ENDP
+
+				;
+				; Draw the ball sprite
+				;
+ 0000021F			DrawBall PROC
+ 0000021F  60			    pushad
+
+ 00000220  BE 00000354 R	    mov esi, offset PackedBall
+				    
+ 00000225  8B 45 14		    mov eax, [ebp + size DDSCAPS2 + 4] ; dereference to get pY
+ 00000228  83 C0 09		    add eax, 9
+ 0000022B  F7 65 A4		    mul DWORD PTR [ebp - 92]           ; DSurfaceDesc.lPitch
+ 0000022E  03 45 10		    add eax, [ebp + size DDSCAPS2]     ; dereference to get pX
+ 00000231  83 E8 09		    sub eax, 9
+ 00000234  03 F8		    add edi, eax
+
+				    ; again edx is zero, so no need to initialize it
+				    
+ 00000236  B1 6C		    mov cl, 108
+ 00000238  51			    push ecx
+ 00000239			DrawLoop:
+ 00000239  66| AD		    lodsw
+ 0000023B  8B D8		    mov ebx, eax
+ 0000023D  33 C9		    xor ecx, ecx
+				    
+ 0000023F			PixelLoop:
+ 0000023F  8B C3		    mov eax, ebx
+ 00000241  6B C9 05		    imul ecx, 5
+ 00000244  D3 E8		    shr eax, cl
+ 00000246  91			    xchg eax, ecx
+ 00000247  F6 35 000003A9 R	    div BYTE PTR [PackedBall + 85] ; this equals 5
+ 0000024D  91			    xchg eax, ecx
+ 0000024E  24 1F		    and al, 1fh
+ 00000250  84 C0		    test al, al
+ 00000252  74 03		    jz DontDraw
+ 00000254  AA			    stosb
+ 00000255  EB 01		    jmp FinishDraw
+
+ 00000257			DontDraw:
+ 00000257  47			    inc edi
+
+ 00000258			FinishDraw:
+ 00000258  42			    inc edx
+ 00000259  41			    inc ecx
+ 0000025A  80 F9 03		    cmp cl, 3
+ 0000025D  75 E0		    jne PixelLoop
+ 0000025F  80 FA 12		    cmp dl, 18
+ 00000262  75 07		    jne NoNewLine
+ 00000264  03 7D A4		    add edi, [ebp - 92] ; DSurfaceDesc.lPitch
+ 00000267  2B FA		    sub edi, edx
+ 00000269  33 D2		    xor edx, edx
+				    
+ 0000026B			NoNewLine:
+ 0000026B  5B			    pop ebx
+ 0000026C  4B			    dec ebx
+ 0000026D  53			    push ebx
+ 0000026E  75 C9		    jnz DrawLoop
+
+ 00000270  5B			    pop ebx
+ 00000271  61			    popad
+ 00000272  C3			    ret
+ 00000273			DrawBall ENDP
+
+
+				;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ 00000273 55 53 45 52 33	    szUser32           db "USER32", 0
+	   32 00
+ 0000027A 45 44 49 54 00	    szEDIT             db "EDIT", 0
+				    
+ 0000027F 50 65 65 6B 4D	    szFunctionNames    db "PeekMessageA", 0
+	   65 73 73 61 67
+	   65 41 00
+ 0000028C  53 68 6F 77 43	                       db "ShowCursor", 0
+	   75 72 73 6F 72
+	   00
+ 00000297  43 72 65 61 74	                       db "CreateWindowExA", 0
+	   65 57 69 6E 64
+	   6F 77 45 78 41
+	   00
+				    
+ 000002A7 44 44 52 41 57	    szDDraw            db "DDRAW", 0
+	   00
+ 000002AD 44 69 72 65 63	    szDirectDrawCreate db "DirectDrawCreate", 0
+	   74 44 72 61 77
+	   43 72 65 61 74
+	   65 00
+
+ 000002BE 0100			    LENSDIST           WORD 256
+ 000002C0 BBEDFF92		    ANGLECOS           REAL4 -0.007263132371
+ 000002C4 3C9D3D49		    ANGLESIN           REAL4 0.0191942621
+ 000002C8 3FC00000		    AngleStep          REAL4 1.5
+ 000002CC 42A00000		    BallX              REAL4 80.0
+ 000002D0 41A00000		    BallY              REAL4 20.0
+
+				    include blueball.inc
+ = 128			      C PalSize equ <128>
+ 000002D4 00 00 00 00	      C BallPal BYTE 0,0,0,0
+ 000002D8  1B 6B FA 00	      C         BYTE 27,107,250,0
+ 000002DC  1C 6C FD 00	      C         BYTE 28,108,253,0
+ 000002E0  1C 6B FD 00	      C         BYTE 28,107,253,0
+ 000002E4  1C 6B FA 00	      C         BYTE 28,107,250,0
+ 000002E8  17 57 D0 00	      C         BYTE 23,87,208,0
+ 000002EC  14 4C B2 00	      C         BYTE 20,76,178,0
+ 000002F0  13 48 AA 00	      C         BYTE 19,72,170,0
+ 000002F4  11 42 9A 00	      C         BYTE 17,66,154,0
+ 000002F8  10 3C 8F 00	      C         BYTE 16,60,143,0
+ 000002FC  1C 69 F6 00	      C         BYTE 28,105,246,0
+ 00000300  1C 68 F2 00	      C         BYTE 28,104,242,0
+ 00000304  1C 67 EF 00	      C         BYTE 28,103,239,0
+ 00000308  1B 64 EA 00	      C         BYTE 27,100,234,0
+ 0000030C  1A 62 E5 00	      C         BYTE 26,98,229,0
+ 00000310  1A 61 E1 00	      C         BYTE 26,97,225,0
+ 00000314  1A 60 E0 00	      C         BYTE 26,96,224,0
+ 00000318  1A 5F DF 00	      C         BYTE 26,95,223,0
+ 0000031C  19 5E DB 00	      C         BYTE 25,94,219,0
+ 00000320  18 5A D1 00	      C         BYTE 24,90,209,0
+ 00000324  17 57 CA 00	      C         BYTE 23,87,202,0
+ 00000328  16 51 BC 00	      C         BYTE 22,81,188,0
+ 0000032C  13 46 A3 00	      C         BYTE 19,70,163,0
+ 00000330  0F 37 81 00	      C         BYTE 15,55,129,0
+ 00000334  19 5B D5 00	      C         BYTE 25,91,213,0
+ 00000338  17 54 C4 00	      C         BYTE 23,84,196,0
+ 0000033C  20 6E FE 00	      C         BYTE 32,110,254,0
+ 00000340  2C 77 FF 00	      C         BYTE 44,119,255,0
+ 00000344  3E 82 FE 00	      C         BYTE 62,130,254,0
+ 00000348  5D 96 FE 00	      C         BYTE 93,150,254,0
+ 0000034C  81 AD FF 00	      C         BYTE 129,173,255,0
+ 00000350  9F C1 FE 00	      C         BYTE 159,193,254,0
+			      C 
+ 00000354 00 00 00 00 B6      C PackedBall  db 0,0,0,0,182,56,14,91,0,0,0,0,0,0,192,4
+	   38 0E 5B 00 00
+	   00 00 00 00 C0
+	   04
+ 00000364  42 0C 41 2D CD     C             db 66,12,65,45,205,2,0,0,0,0,81,111,123,107,35,40
+	   02 00 00 00 00
+	   51 6F 7B 6B 23
+	   28
+ 00000374  EC 65 00 00 00     C             db 236,101,0,0,0,60,98,119,189,115,154,16,203,73,25,0
+	   3C 62 77 BD 73
+	   9A 10 CB 49 19
+	   00
+ 00000384  C0 10 9A 7B DF     C             db 192,16,154,123,223,119,91,16,171,73,248,0,64,17,154,123
+	   77 5B 10 AB 49
+	   F8 00 40 11 9A
+	   7B
+ 00000394  DF 77 5B 10 AB     C             db 223,119,91,16,171,69,179,0,72,16,98,119,189,115,154,40
+	   45 B3 00 48 10
+	   62 77 BD 73 9A
+	   28
+ 000003A4  CB 49 33 27 54     C             db 203,73,51,39,84,5,67,111,124,107,130,40,204,73,37,35
+	   05 43 6F 7C 6B
+	   82 28 CC 49 25
+	   23
+ 000003B4  98 29 84 08 42     C             db 152,41,132,8,66,8,65,45,13,98,180,30,179,49,138,16
+	   08 41 2D 0D 62
+	   B4 1E B3 31 8A
+	   10
+ 000003C4  84 10 6A 35 4E     C             db 132,16,106,53,78,78,185,90,245,53,108,41,74,45,172,57
+	   4E B9 5A F5 35
+	   6C 29 4A 2D AC
+	   39
+ 000003D4  72 52 D5 20 08     C             db 114,82,213,32,8,70,174,53,173,53,238,73,147,102,213,92
+	   46 AE 35 AD 35
+	   EE 49 93 66 D5
+	   5C
+ 000003E4  60 62 32 42 EF     C             db 96,98,50,66,239,65,18,79,52,87,198,2,32,81,115,98
+	   41 12 4F 34 57
+	   C6 02 20 51 73
+	   62
+ 000003F4  18 63 93 66 B9     C             db 24,99,147,102,185,26,54,1,0,24,153,82,148,82,57,87
+	   1A 36 01 00 18
+	   99 52 94 52 39
+	   57
+ 00000404  D5 58 09 00 00     C             db 213,88,9,0,0,0,166,86,181,86,181,26,199,38,0,0
+	   00 A6 56 B5 56
+	   B5 1A C7 26 00
+	   00
+ 00000414  00 00 20 19 B5     C             db 0,0,32,25,181,26,230,28,39,1,0,0,0,0,0,0
+	   1A E6 1C 27 01
+	   00 00 00 00 00
+	   00
+ 00000424  17 21 28 25 00     C             db 23,33,40,37,0,0,0,0
+	   00 00 00
+			      C  
+			      C 
+
+				    ; Window message loop stuff
+ 0000042C 00000000		    Msg                 MSG <>
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+
+ = 3				    NumberOfFunctions   equ <3>
+				    
+ = 0				    PeekMessage         equ <0>
+ = 4				    ShowCursor          equ <4>
+ = 8				    CreateWindowEx      equ <8>
+				  
+ 00000448			    FunctionTable       DWORD NumberOfFunctions dup(?)
+				    
+				    ; Pointers to DirectDraw COM objects    
+ 00000454 00000000		    lpDD               DWORD ?
+ 00000458 00000000		    lpDDPrimary        DWORD ?
+ 0000045C 00000000		    lpDDBackbuffer     DWORD ?
+ 00000460 00000000		    lpDDPalette        DWORD ?
+
+ 00000464 00000000		    DDSurfaceDesc   DDSURFACEDESC2 <>
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+	   00000000
+ 000004D0 00000000		    DDSCaps         DDSCAPS2 <>
+	   00000000
+	   00000000
+	   00000000
+
+ 000004E0 00000000		    pX               DWORD ?
+ 000004E4 00000000		    pY               DWORD ?
+ 000004E8 00000000		    AngleFactor      DWORD ?
+ 000004EC 00000000		    RotationAngle    REAL4 ?
+ 000004F0 00000000		    IncAngle         REAL4 ?
+				    
+ 000004F4 00000000		    TheBall          VERTEX<>
+	   00000000
+	   00000000
+
+				end start
+Microsoft (R) Macro Assembler Version 6.14.8444		    03/05/04 08:13:07
+1kb.asm							     Symbols 2 - 1
+
+
+
+
+Structures and Unions:
+
+                N a m e                  Size
+                                         Offset      Type
+
+DDCOLORKEY . . . . . . . . . . .	 00000008
+  dwColorSpaceLowValue . . . . .	 00000000	 DWord
+  dwColorSpaceHighValue  . . . .	 00000004	 DWord
+DDPIXELFORMAT  . . . . . . . . .	 00000020
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+  dwFlags  . . . . . . . . . . .	 00000004	 DWord
+  dwFourCC . . . . . . . . . . .	 00000008	 DWord
+  dwRGBBitCount  . . . . . . . .	 0000000C	 DWord
+  dwRBitMask . . . . . . . . . .	 00000010	 DWord
+  dwGBitMask . . . . . . . . . .	 00000014	 DWord
+  dwBBitMask . . . . . . . . . .	 00000018	 DWord
+  dwRGBAlphaBitMask  . . . . . .	 0000001C	 DWord
+DDSCAPS2 . . . . . . . . . . . .	 00000010
+  dwCaps . . . . . . . . . . . .	 00000000	 DWord
+  dwCaps2  . . . . . . . . . . .	 00000004	 DWord
+  dwCaps3  . . . . . . . . . . .	 00000008	 DWord
+  dwCaps4  . . . . . . . . . . .	 0000000C	 DWord
+DDSURFACEDESC2 . . . . . . . . .	 0000006C
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+  dwFlags  . . . . . . . . . . .	 00000004	 DWord
+  dwHeight . . . . . . . . . . .	 00000008	 DWord
+  dwWidth  . . . . . . . . . . .	 0000000C	 DWord
+  lPitch . . . . . . . . . . . .	 00000010	 DWord
+  dwBackBufferCount  . . . . . .	 00000014	 DWord
+  dwRefreshRate  . . . . . . . .	 00000018	 DWord
+  dwAlphaBitDepth  . . . . . . .	 0000001C	 DWord
+  dwReserved . . . . . . . . . .	 00000020	 DWord
+  lpSurface  . . . . . . . . . .	 00000024	 DWord
+  ddckCKDestOverlay  . . . . . .	 00000028	 QWord
+  ddckCKDestBlt  . . . . . . . .	 00000030	 QWord
+  ddckCKSrcOverlay . . . . . . .	 00000038	 QWord
+  ddckCKSrcBlt . . . . . . . . .	 00000040	 QWord
+  ddpfPixelFormat  . . . . . . .	 00000048	  00000020
+  ddsCaps  . . . . . . . . . . .	 00000068	 DWord
+MSG  . . . . . . . . . . . . . .	 0000001C
+  hwnd . . . . . . . . . . . . .	 00000000	 DWord
+  message  . . . . . . . . . . .	 00000004	 DWord
+  wParam . . . . . . . . . . . .	 00000008	 DWord
+  lParam . . . . . . . . . . . .	 0000000C	 DWord
+  time . . . . . . . . . . . . .	 00000010	 DWord
+  pt . . . . . . . . . . . . . .	 00000014	 QWord
+PALETTEENTRY . . . . . . . . . .	 00000004
+  peRed  . . . . . . . . . . . .	 00000000	 Byte
+  peGreen  . . . . . . . . . . .	 00000001	 Byte
+  peBlue . . . . . . . . . . . .	 00000002	 Byte
+  peFlags  . . . . . . . . . . .	 00000003	 Byte
+POINT  . . . . . . . . . . . . .	 00000008
+  x  . . . . . . . . . . . . . .	 00000000	 DWord
+  y  . . . . . . . . . . . . . .	 00000004	 DWord
+VERTEX . . . . . . . . . . . . .	 0000000C
+  x  . . . . . . . . . . . . . .	 00000000	 DWord
+  y  . . . . . . . . . . . . . .	 00000004	 DWord
+  z  . . . . . . . . . . . . . .	 00000008	 DWord
+WNDCLASSEX . . . . . . . . . . .	 00000030
+  cbSize . . . . . . . . . . . .	 00000000	 DWord
+  style  . . . . . . . . . . . .	 00000004	 DWord
+  lpfnWndProc  . . . . . . . . .	 00000008	 DWord
+  cbClsExtra . . . . . . . . . .	 0000000C	 DWord
+  cbWndExtra . . . . . . . . . .	 00000010	 DWord
+  hInstance  . . . . . . . . . .	 00000014	 DWord
+  hIcon  . . . . . . . . . . . .	 00000018	 DWord
+  hCursor  . . . . . . . . . . .	 0000001C	 DWord
+  hbrBackground  . . . . . . . .	 00000020	 DWord
+  lpszMenuName . . . . . . . . .	 00000024	 DWord
+  lpszClassName  . . . . . . . .	 00000028	 DWord
+  hIconSm  . . . . . . . . . . .	 0000002C	 DWord
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+FLAT . . . . . . . . . . . . . .	GROUP
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000000 DWord	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000500 DWord	  Public  'CODE'	
+
+
+Procedures,  parameters and locals:
+
+                N a m e                 Type     Value    Attr
+
+DrawBall . . . . . . . . . . . .	P Near	 0000021F _TEXT	Length= 00000054 Public STDCALL
+  DrawLoop . . . . . . . . . . .	L Near	 00000239 _TEXT	
+  PixelLoop  . . . . . . . . . .	L Near	 0000023F _TEXT	
+  DontDraw . . . . . . . . . . .	L Near	 00000257 _TEXT	
+  FinishDraw . . . . . . . . . .	L Near	 00000258 _TEXT	
+  NoNewLine  . . . . . . . . . .	L Near	 0000026B _TEXT	
+GetProcAddress . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+LoadLibraryA . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+RotateBall . . . . . . . . . . .	P Near	 000001C1 _TEXT	Length= 0000005E Public STDCALL
+  RotateZ  . . . . . . . . . . .	L Near	 000001CC _TEXT	
+  RotateX  . . . . . . . . . . .	L Near	 000001D3 _TEXT	
+  RotateY  . . . . . . . . . . .	L Near	 000001DB _TEXT	
+  DoRotation . . . . . . . . . .	L Near	 000001E0 _TEXT	
+  EndRotation  . . . . . . . . .	L Near	 00000218 _TEXT	
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000003h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+ANGLECOS . . . . . . . . . . . .	DWord	 000002C0 _TEXT	
+ANGLESIN . . . . . . . . . . . .	DWord	 000002C4 _TEXT	
+APiCos . . . . . . . . . . . . .	Text   	 REAL4 PTR [ebp - 8]
+APiSin . . . . . . . . . . . . .	Text   	 REAL4 PTR [ebp - 4]
+AngleFactor  . . . . . . . . . .	DWord	 000004E8 _TEXT	
+AngleStep  . . . . . . . . . . .	DWord	 000002C8 _TEXT	
+BallPal  . . . . . . . . . . . .	Byte	 000002D4 _TEXT	
+BallX  . . . . . . . . . . . . .	DWord	 000002CC _TEXT	
+BallY  . . . . . . . . . . . . .	DWord	 000002D0 _TEXT	
+CW_USEDEFAULT  . . . . . . . . .	Text   	 80000000h
+CreateWindowEx . . . . . . . . .	Text   	 8
+DDSCAPS_BACKBUFFER . . . . . . .	Text   	 4h
+DDSCaps  . . . . . . . . . . . .	DDSCAPS2  000004D0 _TEXT	
+DDSurfaceDesc  . . . . . . . . .	DDSURFACEDESC2  00000464 _TEXT	
+DDrawCreatePalette . . . . . . .	Text   	 14h
+DDrawCreateSurface . . . . . . .	Text   	 18h
+DDrawPaletteSetEntries . . . . .	Text   	 18h
+DDrawRestoreDisplayMode  . . . .	Text   	 4ch
+DDrawSetCooperativeLevel . . . .	Text   	 50h
+DDrawSetDisplayMode  . . . . . .	Text   	 54h
+DDrawSurfaceFlip . . . . . . . .	Text   	 2ch
+DDrawSurfaceGetAttachedSurface .	Text   	 30h
+DDrawSurfaceLock . . . . . . . .	Text   	 64h
+DDrawSurfaceSetPalette . . . . .	Text   	 7ch
+DDrawSurfaceUnlock . . . . . . .	Text   	 80h
+FINAL_DDESC_DDSCAPS  . . . . . .	Text   	 4218h
+FINAL_DDESC_FLAGS  . . . . . . .	Text   	 21h
+FINAL_DDFLIP . . . . . . . . . .	Text   	 1h
+FINAL_DDLOCK . . . . . . . . . .	Text   	 1h
+FINAL_DDPCAPS  . . . . . . . . .	Text   	 44h
+FINAL_DDSCL  . . . . . . . . . .	Text   	 53h
+FunctionTable  . . . . . . . . .	DWord	 00000448 _TEXT	
+IUnknownRelease  . . . . . . . .	Text   	 8h
+IncAngle . . . . . . . . . . . .	DWord	 000004F0 _TEXT	
+InitLoop . . . . . . . . . . . .	L Near	 00000018 _TEXT	
+LENSDIST . . . . . . . . . . . .	Word	 000002BE _TEXT	
+LoadLibrary  . . . . . . . . . .	Text   	 LoadLibraryA
+MessageLoopEnd . . . . . . . . .	L Near	 000001C0 _TEXT	
+MessageLoopStart . . . . . . . .	L Near	 000000E8 _TEXT	
+Msg  . . . . . . . . . . . . . .	MSG	 0000042C _TEXT	
+NUMBALLS . . . . . . . . . . . .	Text   	 10
+NumberOfFunctions  . . . . . . .	Text   	 3
+PM_REMOVE  . . . . . . . . . . .	Text   	 1h
+PackedBall . . . . . . . . . . .	Byte	 00000354 _TEXT	
+PalSize  . . . . . . . . . . . .	Text   	 128
+PeekMessage  . . . . . . . . . .	Text   	 0
+RenderMain . . . . . . . . . . .	L Near	 00000103 _TEXT	
+RotateAxis . . . . . . . . . . .	L Near	 0000015D _TEXT	
+RotationAngle  . . . . . . . . .	DWord	 000004EC _TEXT	
+RotationLoop . . . . . . . . . .	L Near	 0000013A _TEXT	
+ShowCursor . . . . . . . . . . .	Text   	 4
+TheBall  . . . . . . . . . . . .	VERTEX	 000004F4 _TEXT	
+TheHeight  . . . . . . . . . . .	Text   	 300
+TheWidth . . . . . . . . . . . .	Text   	 400
+VK_ESCAPE  . . . . . . . . . . .	Text   	 1bh
+WM_CLOSE . . . . . . . . . . . .	Text   	 10h
+WM_CREATE  . . . . . . . . . . .	Text   	 1h
+WM_DESTROY . . . . . . . . . . .	Text   	 2h
+WM_KEYDOWN . . . . . . . . . . .	Text   	 100h
+WM_QUIT  . . . . . . . . . . . .	Text   	 12h
+WS_POPUP . . . . . . . . . . . .	Text   	 80000000h
+X_AXIS . . . . . . . . . . . . .	Text   	 1
+Y_AXIS . . . . . . . . . . . . .	Text   	 0
+Z_AXIS . . . . . . . . . . . . .	Text   	 2
+lpDDBackbuffer . . . . . . . . .	DWord	 0000045C _TEXT	
+lpDDPalette  . . . . . . . . . .	DWord	 00000460 _TEXT	
+lpDDPrimary  . . . . . . . . . .	DWord	 00000458 _TEXT	
+lpDD . . . . . . . . . . . . . .	DWord	 00000454 _TEXT	
+pX . . . . . . . . . . . . . . .	DWord	 000004E0 _TEXT	
+pY . . . . . . . . . . . . . . .	DWord	 000004E4 _TEXT	
+start  . . . . . . . . . . . . .	L Near	 00000000 _TEXT	Public STDCALL
+szDDraw  . . . . . . . . . . . .	Byte	 000002A7 _TEXT	
+szDirectDrawCreate . . . . . . .	Byte	 000002AD _TEXT	
+szEDIT . . . . . . . . . . . . .	Byte	 0000027A _TEXT	
+szFunctionNames  . . . . . . . .	Byte	 0000027F _TEXT	
+szUser32 . . . . . . . . . . . .	Byte	 00000273 _TEXT	
+
+	   0 Warnings
+	   0 Errors

@@ -1,0 +1,1008 @@
+/*
+TODO:
+- all types of conflict resolution between archives
+- all types of conflict resolution between HISTORY
+- all file operations
+- test: fat cannot compare directories between fat, and between fat/ntfs
+
+
+* before the test name means SOLO it.
+- before the test name means suppress it.
+
+you can put '-' before source / destination to remove it from a subscriber spec.
+
+*/
+
+
+
+
+// just make sure that file creation & comparison work OK.
+BasicFileOperationsTest
+[
+	DirStructure
+	[
+		ntfs\file.txt ["hello there", 0]
+		ntfs\file2.txt ["hello there", 0]
+
+		ntfs\file.txt = ntfs\file2.txt
+		ntfs\file.txt = ["hello there", 0]
+
+		ntfs\file3.txt ["hello there", -1]
+		ntfs\file3.txt = ["hello there", -1]
+
+		ntfs\file.txt = [exists]
+		ntfs\file.txt [delete]
+		ntfs\file.txt = [missing]
+
+		ntfs\dir1\
+		ntfs\dir1\file.txt ["hello there", 0]
+		ntfs\dir1\file.txt = ntfs\file2.txt
+		ntfs\dir1\ = [exists]
+		ntfs\dir1\ [delete]
+		ntfs\dir1\ = [missing]
+	]
+]
+//////////////////////////////////////////////////
+BasicBasicTest
+[
+	DirStructure
+	[
+		ntfs\1\file.txt ["hello there", 0]
+		ntfs\1\dir\file.txt ["hello there", 0]
+		ntfs\2\
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+
+		// create subscriber for ntfs\1
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+
+		// create subscriber for ntfs\2 using settings copied from ntfs\1
+		Subscriber(a) [ ntfs\2 ]
+
+		ExpectedAnalysis [ modified = 3 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 3 deleted = 0 ]
+	]
+
+	// run it again and don't expect any conflicts.
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+
+	DirStructure
+	[
+		ntfs\1\file.txt = ntfs\2\file.txt
+		ntfs\1\dir\file.txt = ntfs\2\dir\file.txt
+	]
+]
+
+//////////////////////////////////////////////////
+DateCheckTest
+[
+	DirStructure
+	[
+		ntfs\1\file.txt ["hello there", 0]
+		ntfs\2\file.txt ["hello .....", 0] // should not be detected as modified.
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a) [ ntfs\2 ]
+
+		ExpectedAnalysis [ modified = 2 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\file.txt ["hello there", 0]
+		ntfs\2\file.txt ["hello .....", 1] // should not be detected as modified.
+	]
+	
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 1 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 1 deleted = 0 ]
+	]
+]
+
+//////////////////////////////////////////////////
+BasicSyncTest
+[
+	DirStructure
+	[
+		// untouched file. (3 modified because they are new)
+		ntfs\1\file.txt ["hello there", 0]
+		ntfs\2\file.txt ["hello there", 0]
+		ntfs\3\file.txt ["hello there", 0]
+
+		// file missing in 2 places (1 modified, 2 missing; 2 copies)
+		ntfs\1\fileMissing.txt ["hello there", 0]
+		ntfs\2\
+		ntfs\3\
+
+		// another file missing in 2 places (1 modified, 2 missing; 2 copies)
+		ntfs\1\
+		ntfs\2\
+		ntfs\3\fileMissing2.txt ["hello there", 0]
+
+		// file conflicted but one is more modern (2 modified, 1 missing; 2 copies)
+		ntfs\1\
+		ntfs\2\fileConflictDiffDate.txt ["hello there SIR", 1]
+		ntfs\3\fileConflictDiffDate.txt ["hello there", 0]
+
+		// multiple files conflicted but one is more modern (3 modified, 2 copies)
+		ntfs\1\fileConflictDiffDate2.txt ["hello there LOL OMG WTF", 1]
+		ntfs\2\fileConflictDiffDate2.txt ["hello there LOL", 2]
+		ntfs\3\fileConflictDiffDate2.txt ["hello there", 0]
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a) [ ntfs\2 ]
+		Subscriber(a) [ ntfs\3 ]
+
+		ExpectedAnalysis [ modified = 10 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 8 deleted = 0 ]
+	]
+  
+	DirStructure
+	[
+		// file missing in 2 places
+		ntfs\1\fileMissing.txt = ntfs\2\fileMissing.txt
+		ntfs\1\fileMissing.txt = ntfs\3\fileMissing.txt
+
+		// another file missing in 2 places
+		ntfs\3\fileMissing2.txt = ntfs\1\fileMissing2.txt
+		ntfs\3\fileMissing2.txt = ntfs\2\fileMissing2.txt
+
+		// file conflicted but one is more modern
+		ntfs\1\fileConflictDiffDate.txt = ["hello there SIR", 1]
+		ntfs\2\fileConflictDiffDate.txt = ["hello there SIR", 1]
+		ntfs\3\fileConflictDiffDate.txt = ["hello there SIR", 1]
+
+		// multiple files conflicted but one is more modern
+		ntfs\1\fileConflictDiffDate2.txt = ["hello there LOL", 2]
+		ntfs\2\fileConflictDiffDate2.txt = ["hello there LOL", 2]
+		ntfs\3\fileConflictDiffDate2.txt = ["hello there LOL", 2]
+	]
+
+	// run it again and don't expect any conflicts.
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+	
+	// make sure if i actively delete a file now that it would be deleted on all other dirs
+	// instead of restored to the deleted location.
+	DirStructure
+	[
+		ntfs\1\fileMissing.txt [delete]
+	]
+
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 1 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 2 ]
+	]
+
+	// run it again and don't expect any conflicts.
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+]
+
+
+//////////////////////////////////////////////////
+DirSyncTest1
+[
+	DirStructure
+	[
+		ntfs\1\somedir\file.txt ["lol"] // will result in 2 modified files: the dir, and the file.
+		ntfs\2\
+		ntfs\3\
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a) [ ntfs\2 ]
+		Subscriber(a) [ ntfs\3 ]
+
+		ExpectedAnalysis [ modified = 2 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 4 deleted = 0 ]
+	]
+
+	// run it again and don't expect any conflicts.
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+	
+	// delete the dir and make sure it gets deleted in the other dirs
+	DirStructure
+	[
+		ntfs\1\somedir\ [delete]
+	]
+	
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 1 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 2 ]
+	]
+]
+
+//////////////////////////////////////////////////
+DirSyncTest2
+[
+	DirStructure
+	[
+		ntfs\1\somedir\
+		ntfs\2\
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a) [ ntfs\2 ]
+	]
+]
+
+//////////////////////////////////////////////////
+ChangeToDirTest
+[
+	DirStructure
+	[
+		ntfs\1\lol ["lol mate"]
+		ntfs\2\
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a) [ ntfs\2 ]
+
+		ExpectedAnalysis [ modified = 1 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 1 deleted = 0 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\lol = ["lol mate"]
+		ntfs\2\lol = ["lol mate"]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\lol [delete]
+		ntfs\1\lol\
+	]
+	
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 1 changedToFile = 0 ]
+		ExpectedActions [ copied = 1 deleted = 1 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\lol\ = [exists]
+		ntfs\2\lol\ = [exists]
+	]
+]
+
+//////////////////////////////////////////////////
+ChangeToDirTest2
+[
+	DirStructure
+	[
+		ntfs\1\lol ["lol mate"]
+		ntfs\2\
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a) [ ntfs\2 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\lol [delete]
+		ntfs\1\lol\skank.txt ["dude, like."]
+	]
+	
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 1 deleted = 0 changedToDirectory = 1 changedToFile = 0 ]
+		ExpectedActions [ copied = 2 deleted = 1 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\lol\skank.txt = ["dude, like."]
+		ntfs\2\lol\skank.txt = ["dude, like."]
+	]
+]
+
+
+//////////////////////////////////////////////////
+ChangeToFileTest
+[
+	DirStructure
+	[
+		ntfs\1\lol\
+		ntfs\2\
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a) [ ntfs\2 ]
+
+		ExpectedAnalysis [ modified = 1 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 1 deleted = 0 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\lol\ = [exists]
+		ntfs\2\lol\ = [exists]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\lol [delete]
+		ntfs\1\lol ["sunshine"]
+	]
+	
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 1 ]
+		ExpectedActions [ copied = 1 deleted = 1 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\lol = ["sunshine"]
+		ntfs\2\lol = ["sunshine"]
+	]
+]
+
+//////////////////////////////////////////////////
+ChangeToFileTest2
+[
+	DirStructure
+	[
+		ntfs\1\lol\skank.txt ["dude, like."]
+		ntfs\2\
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a) [ ntfs\2 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\lol [delete]
+		ntfs\1\lol ["sunshine"]
+	]
+	
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 1 ]
+		ExpectedActions [ copied = 1 deleted = 1 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\lol = ["sunshine"]
+		ntfs\2\lol = ["sunshine"]
+	]
+]
+
+
+//////////////////////////////////////////////////
+DirChangeTest
+[
+	DirStructure
+	[
+		ntfs\1\lol\         // 1 modified, 2 copied
+		ntfs\2\omg ["hi"]   // 1 modified, 2 copied
+		ntfs\3\
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a) [ ntfs\2 ]
+		Subscriber(a) [ ntfs\3 ]
+
+		ExpectedAnalysis [ modified = 2 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 4 deleted = 0 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\lol\ = [exists]
+		ntfs\2\lol\ = [exists]
+		ntfs\3\lol\ = [exists]
+		
+		ntfs\1\omg = ["hi"]
+		ntfs\2\omg = ["hi"]
+		ntfs\3\omg = ["hi"]
+	]
+
+	// run it again and don't expect any conflicts.
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+	
+	// delete the dir and make sure it gets deleted in the other dirs
+	DirStructure
+	[
+		ntfs\1\lol\ [delete]
+		ntfs\1\lol ["whoa lol"] // 1 changed dir -> file
+
+		ntfs\2\omg [delete]
+		ntfs\2\omg\             // 1 changed file -> dir
+	]
+	
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 1 changedToFile = 1 ]
+		ExpectedActions [ copied = 4 deleted = 4 ]// 2 copies & 2 deletes propagate to 2 subscribers.
+	]
+
+	DirStructure
+	[
+		ntfs\1\lol = ["whoa lol"]
+		ntfs\2\lol = ["whoa lol"]
+		ntfs\3\lol = ["whoa lol"]
+		
+		ntfs\1\omg\ = [exists]
+		ntfs\2\omg\ = [exists]
+		ntfs\3\omg\ = [exists]
+	]
+]
+
+
+// SOURCE / DESTINATION TESTS
+//////////////////////////////////////////////////
+SourceDestMisc1
+[
+	DirStructure
+	[
+		// source files are 1 2 and 4.
+		ntfs\1\file1.txt ["file1", 0] // source + dest, 2 copies to here
+		ntfs\2\file2.txt ["file2", 0] // source only - 0 copies
+		ntfs\3\file3.txt ["file3", 0] // dest only - 3 copies here
+		ntfs\4\file4.txt ["file4", 0] // source + dest - 2 copies here
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a)
+		[
+			ntfs\2
+			source
+			-destination
+		]
+		Subscriber(a)
+		[
+			ntfs\3
+			-source
+			destination
+		]
+		Subscriber(a)
+		[
+			ntfs\4
+			source
+			destination
+		]
+
+		ExpectedAnalysis [ modified = 3 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 7 deleted = 0 ]
+	]
+	
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+
+	// give a subscriber one of the files it didn't receive before. should show as unmodified
+	DirStructure
+	[
+		ntfs\2\file4.txt ["file4", 0]
+	]
+
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+
+	// give a subscriber one of the files it didn't receive before, but modified. should show as modified
+	DirStructure
+	[
+		ntfs\2\file4.txt = [exists]
+		ntfs\2\file1.txt = [missing]
+		
+		ntfs\2\file1.txt ["file4 CHANGED", 1]
+	]
+
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 1 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 3 deleted = 0 ]
+	]
+]
+
+SourceDestMisc2
+[
+	DirStructure
+	[
+		ntfs\1\file1.txt ["file1", 0] // source + dest
+		ntfs\2\file2.txt ["file2", 0] // source
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a)
+		[
+			ntfs\2
+			-destination
+		]
+
+		ExpectedAnalysis [ modified = 2 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 1 deleted = 0 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\file1.txt = ["file1", 0]
+		ntfs\1\file2.txt = ["file2", 0]
+		ntfs\2\file1.txt = [missing]
+		ntfs\2\file2.txt = ["file2", 0]
+	]
+
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+
+	DirStructure
+	[
+		ntfs\2\file1.txt ["file1", 0]
+	]
+
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+]
+
+ClobberTest1
+[
+	DirStructure
+	[
+		ntfs\1\file1.txt ["something", 0] // source
+		ntfs\2\file1.txt ["hi", 1] // dest
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			-destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a)
+		[
+			ntfs\2
+			destination
+			-source
+		]
+
+		ExpectedAnalysis [ modified = 1 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 1 deleted = 0 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\file1.txt = ["something", 0]
+		ntfs\2\file1.txt = ["something", 0]
+	]
+
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+]
+
+// HASH TESTS
+MD5_ClobberTest_Nocopy
+[
+	DirStructure
+	[
+		ntfs\1\file1.txt ["something", 0] // source
+		ntfs\2\file1.txt ["something", 5] // dest
+	]
+
+	RunSync(->a)
+	[
+		MD5
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			-destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a)
+		[
+			ntfs\2
+			destination
+			-source
+		]
+
+		ExpectedAnalysis [ modified = 1 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\file1.txt = ["something", 0]
+		ntfs\2\file1.txt = ["something", 5]
+	]
+
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+]
+
+MD5_ClobberTest_Copy
+[
+	DirStructure
+	[
+		ntfs\1\file1.txt ["something", 0] // source
+		ntfs\2\file1.txt ["o999999mg", 0] // dest
+	]
+
+	RunSync(->a)
+	[
+		MD5
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			-destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a)
+		[
+			ntfs\2
+			destination
+			-source
+		]
+
+		ExpectedAnalysis [ modified = 1 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 1 deleted = 0 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\file1.txt = ["something", 0]
+		ntfs\2\file1.txt = ["something", 0]
+	]
+
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+]
+
+// this is a weird test. Because the file sizes are different, 
+MD5_ClobberTest_MissingDBHash
+[
+	DirStructure
+	[
+		ntfs\1\file1.txt ["something", 0] // source
+		ntfs\2\file1.txt ["omg", 0] // dest
+	]
+
+	RunSync(->a)
+	[
+		MD5
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			-destination
+			SourceFilterInclude = ...
+			DestinationFilterInclude = ...
+		]
+		Subscriber(a)
+		[
+			ntfs\2
+			destination
+			-source
+		]
+
+		ExpectedAnalysis [ modified = 1 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 1 deleted = 0 ]
+	]
+	
+	DirStructure
+	[
+		ntfs\1\file1.txt = ["something", 0]
+		ntfs\2\file1.txt = ["something", 0]
+	]
+
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 1 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+]
+
+
+// FILTER TESTS
+*BasicFilterTest
+[
+	DirStructure
+	[
+		ntfs\1\file.txt ["lol wtf", 0]
+		ntfs\1\file.docx ["lol", 0]
+		ntfs\1\file.pdf ["lol", 0]
+		
+		ntfs\2\file.docx ["do not clobber me", 0]
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			SourceFilterInclude = ...*.txt
+			SourceFilterInclude = ...*.docx
+		]
+
+		// create subscriber for ntfs\2 using settings copied from ntfs\1
+		Subscriber(->b)
+		[
+			ntfs\2
+			destination
+			DestinationFilterInclude = ...
+			DestinationFilterExclude = ...*.docx
+		]
+
+		ExpectedAnalysis [ modified = 2 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 1 deleted = 0 ]
+	]
+
+	DirStructure
+	[
+		ntfs\1\file.txt = ["lol wtf", 0]
+		ntfs\1\file.docx = ["lol", 0]
+		ntfs\1\file.pdf = ["lol", 0]
+		
+		ntfs\2\file.docx = ["do not clobber me", 0]
+		ntfs\2\file.txt = ["lol wtf", 0]
+	]
+	
+	RunSync(a)
+	[
+		ExpectedAnalysis [ modified = 0 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 0 deleted = 0 ]
+	]
+]
+
+*FilterSyntaxTest1 // test the "...\*.txt" syntax
+[
+	DirStructure
+	[
+		ntfs\1\file.txt ["lol wtf", 0]
+		ntfs\2\
+	]
+
+	RunSync(->a)
+	[
+		ModifiedDateUTC
+		Subscriber(->a)
+		[
+			ntfs\1
+			source
+			SourceFilterInclude = ...\*.txt
+			DestinationFilterInclude = ...
+		]
+		// create subscriber for ntfs\2 using settings copied from ntfs\1
+		Subscriber(a)
+		[
+			ntfs\2
+			destination
+		]
+
+		ExpectedAnalysis [ modified = 1 deleted = 0 changedToDirectory = 0 changedToFile = 0 ]
+		ExpectedActions [ copied = 1 deleted = 0 ]
+	]
+]
+
+
+
+// directory structures
+
+// changing subscriber params between runs
+// - source / dest
+// - filters
+
+// changing directories on a subscriber - making sure history is kept (also UnexpectedFiles)
+
+// FAT32 TESTS
+
+// FILE CONFLICT TESTS
+// - file size differs but date is the same
+
+// SQL schema changes not causing problems.
+
+// ntfs hard links to fat32 directories?
+
+/*
+	// file conflicted
+	ntfs\1\
+	ntfs\2\fileConflict.txt ["hello there SIR", 0]
+	ntfs\3\fileConflict.txt ["hello there", 0]
+
+	// multiple files conflicted
+	ntfs\1\fileConflictDiffDate.txt ["hello there LOL OMG WTF", 0]
+	ntfs\2\fileConflictDiffDate.txt ["hello there LOL", 0]
+	ntfs\3\fileConflictDiffDate.txt ["hello there", 0]
+
+	// 2 directory conflict with 1 file
+	ntfs\1\dir1 ["this is a file", 0]
+	ntfs\2\dir1\
+	ntfs\3\dir1\
+
+	// 1 directory conflict with 2 file
+	ntfs\1\dir2 ["this is a file", 0]
+	ntfs\2\dir2 ["this is a file", 0]
+	ntfs\3\dir2\
+
+	// 1 directory conflict with 1 file and 1 file B
+	ntfs\1\dir3 ["this is a file", 0]
+	ntfs\2\dir3 ["this is another file", 0]
+	ntfs\3\dir3\
+
+	// 1 directory conflict with 1 file and 1 file B (using different times)
+	ntfs\1\dir4 ["this is a file", 0]
+	ntfs\2\dir4 ["this is a more recent file", 1]
+	ntfs\3\dir4\
+*/

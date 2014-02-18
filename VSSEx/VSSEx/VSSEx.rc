@@ -1,0 +1,388 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0, 35
+ PRODUCTVERSION 1,0,0, 35
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "Microsoft\0"
+            VALUE "FileDescription", "SdExTest\0"
+            VALUE "FileVersion", "1, 0, 0, 35\0"
+            VALUE "InternalName", "SdExTest\0"
+            VALUE "LegalCopyright", "Copyright © 2001\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "SdExTest.dll\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "SdExTest\0"
+            VALUE "ProductVersion", "1, 0, 0, 35\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON2               ICON    DISCARDABLE     "CheckedOut.ico"
+IDI_ICON3               ICON    DISCARDABLE     "CheckedIn.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_CONTEXTIMAGE        BITMAP  DISCARDABLE     "bmp00001.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ADD DIALOG DISCARDABLE  0, 0, 275, 246
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Add Files"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_COMMENT,17,19,251,33,ES_MULTILINE | ES_WANTRETURN | 
+                    WS_VSCROLL
+    CONTROL         "Recurse Sub Folders",IDC_RECURSIVE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,17,56,82,10
+    DEFPUSHBUTTON   "OK",IDOK,164,56,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,218,56,50,14
+    EDITTEXT        IDC_EXCLUDE,17,216,243,14,ES_AUTOHSCROLL
+    CONTROL         "List1",IDC_SUMMARY,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,17,93,244,107
+    LTEXT           "Comment:",IDC_STATIC,7,7,32,8
+    GROUPBOX        "Summary",IDC_STATIC,7,82,261,156
+    LTEXT           "Exclude files:",IDC_STATIC,17,204,42,8
+END
+
+IDD_CHECKIN DIALOG DISCARDABLE  0, 0, 275, 214
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Check In Files"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_COMMENT,17,19,251,33,ES_MULTILINE | ES_WANTRETURN | 
+                    WS_VSCROLL
+    CONTROL         "Recurse Sub Folders",IDC_RECURSIVE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,17,56,82,10
+    CONTROL         "Remove Local Files",IDC_REMOVELOCAL,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,17,69,78,10
+    DEFPUSHBUTTON   "OK",IDOK,164,56,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,218,56,50,14
+    CONTROL         "List1",IDC_SUMMARY,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,17,93,244,107
+    LTEXT           "Comment:",IDC_STATIC,7,7,32,8
+    GROUPBOX        "Summary",IDC_STATIC,7,82,261,125
+END
+
+IDD_CHECKOUT DIALOG DISCARDABLE  0, 0, 275, 214
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Check Out Files"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_COMMENT,17,19,251,33,ES_MULTILINE | ES_WANTRETURN | 
+                    WS_VSCROLL
+    CONTROL         "Recurse Sub Folders",IDC_RECURSIVE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,17,56,82,10
+    DEFPUSHBUTTON   "OK",IDOK,164,56,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,218,56,50,14
+    CONTROL         "List1",IDC_SUMMARY,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,17,93,244,107
+    LTEXT           "Comment:",IDC_STATIC,7,7,32,8
+    GROUPBOX        "Summary",IDC_STATIC,7,82,261,125
+END
+
+IDD_SYNC DIALOG DISCARDABLE  0, 0, 275, 185
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Sync Files"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Recurse Sub Folders",IDC_RECURSIVE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,17,7,82,10
+    CONTROL         "Clobber Writable Files",IDC_CLOBBER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,17,20,84,10
+    DEFPUSHBUTTON   "OK",IDOK,164,164,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,218,164,50,14
+    CONTROL         "List1",IDC_SUMMARY,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,17,48,244,107
+    GROUPBOX        "Summary",-1,7,35,261,125
+END
+
+IDD_REVERT DIALOG DISCARDABLE  0, 0, 275, 185
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Sync Files"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Recurse Sub Folders",IDC_RECURSIVE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,17,7,82,10
+    CONTROL         "Clobber Writable Files",IDC_CLOBBER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,17,20,84,10
+    DEFPUSHBUTTON   "OK",IDOK,164,164,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,218,164,50,14
+    CONTROL         "List1",IDC_SUMMARY,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,17,48,244,107
+    GROUPBOX        "Summary",-1,7,35,261,125
+END
+
+IDD_PROGRESS DIALOG DISCARDABLE  0, 0, 180, 81
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "VSS Extension"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Please wait for the command to execute.",IDC_STATIC,7,
+                    17,166,8
+END
+
+IDD_REMOVE DIALOG DISCARDABLE  0, 0, 275, 158
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Remove Files From Source Control"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Destroy Permanantly",IDC_DESTROY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,17,137,81,10
+    DEFPUSHBUTTON   "OK",IDOK,164,137,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,218,137,50,14
+    CONTROL         "List1",IDC_SUMMARY,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,15,19,244,107
+    GROUPBOX        "Summary",IDC_STATIC,7,8,261,125
+END
+
+IDD_RENAME DIALOG DISCARDABLE  0, 0, 270, 89
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Rename File with VSS Integration"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,149,67,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,203,67,50,14
+    EDITTEXT        IDC_OLDNAME,17,19,236,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Old name:",IDC_STATIC,7,7,33,8
+    LTEXT           "New Name",IDC_STATIC,7,37,36,8
+    EDITTEXT        IDC_NEWNAME,17,49,236,14,ES_AUTOHSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ADD, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 268
+        VERTGUIDE, 17
+        VERTGUIDE, 218
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 239
+        HORZGUIDE, 52
+        HORZGUIDE, 70
+        HORZGUIDE, 82
+        HORZGUIDE, 93
+        HORZGUIDE, 200
+        HORZGUIDE, 212
+    END
+
+    IDD_CHECKIN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 268
+        VERTGUIDE, 17
+        VERTGUIDE, 218
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 207
+        HORZGUIDE, 52
+        HORZGUIDE, 66
+        HORZGUIDE, 70
+        HORZGUIDE, 82
+        HORZGUIDE, 93
+    END
+
+    IDD_CHECKOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 268
+        VERTGUIDE, 17
+        VERTGUIDE, 218
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 207
+        HORZGUIDE, 52
+        HORZGUIDE, 66
+        HORZGUIDE, 70
+        HORZGUIDE, 82
+        HORZGUIDE, 93
+    END
+
+    IDD_SYNC, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 268
+        VERTGUIDE, 17
+        VERTGUIDE, 218
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 178
+        HORZGUIDE, 30
+        HORZGUIDE, 52
+        HORZGUIDE, 66
+        HORZGUIDE, 70
+        HORZGUIDE, 82
+        HORZGUIDE, 93
+        HORZGUIDE, 160
+    END
+
+    IDD_REVERT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 268
+        VERTGUIDE, 17
+        VERTGUIDE, 218
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 178
+        HORZGUIDE, 30
+        HORZGUIDE, 52
+        HORZGUIDE, 66
+        HORZGUIDE, 70
+        HORZGUIDE, 82
+        HORZGUIDE, 93
+        HORZGUIDE, 160
+    END
+
+    IDD_PROGRESS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 173
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 74
+        HORZGUIDE, 17
+    END
+
+    IDD_REMOVE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 268
+        VERTGUIDE, 17
+        VERTGUIDE, 218
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 151
+        HORZGUIDE, 133
+    END
+
+    IDD_RENAME, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 263
+        VERTGUIDE, 17
+        VERTGUIDE, 203
+        VERTGUIDE, 253
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 82
+        HORZGUIDE, 15
+        HORZGUIDE, 33
+        HORZGUIDE, 45
+        HORZGUIDE, 63
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

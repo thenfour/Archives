@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<Schema name="DATABASE" xmlns="urn:schemas-microsoft-com:xml-data" xmlns:dt="urn:schemas-microsoft-com:datatypes">
+
+    <ElementType name="DATABASE" content="eltOnly" model="closed" order="one">
+        <element type="TOPIC" maxOccurs="*" minOccurs="0"/>
+    </ElementType>
+
+    <ElementType name="FUNCTION" content="textOnly" model="closed" order="one">
+        <AttributeType name="NAME"/>
+        <AttributeType name="TYPE"/>
+        <AttributeType name="CLASS"/>
+        <attribute type="NAME"/>
+        <attribute type="TYPE"/>
+        <attribute type="CLASS"/>
+    </ElementType>
+
+    <ElementType name="ARG" content="eltOnly" model="closed" order="one">
+        <AttributeType name="NAME"/>
+        <AttributeType name="TYPE"/>
+        <attribute type="NAME"/>
+        <attribute type="TYPE"/>
+        <element type="DESCRIPTION" maxOccurs="*" minOccurs="0"/>
+    </ElementType>
+
+    <ElementType name="DESCRIPTION" content="textOnly" model="closed" order="one">
+    </ElementType>
+
+    <ElementType name="EXAMPLE" content="textOnly" model="closed" order="one">
+    </ElementType>
+
+    <ElementType name="RETURNVALUEDESCRIPTION" content="textOnly" model="closed" order="one">
+    </ElementType>
+
+    <ElementType name="REQUIREMENTS" content="empty" model="closed" order="one">
+        <AttributeType name="FILE"/>
+        <attribute type="FILE"/>
+    </ElementType>
+
+    <ElementType name="LINK" content="empty" model="closed" order="one">
+        <AttributeType name="NAME"/>
+        <attribute type="NAME"/>
+    </ElementType>
+
+    <ElementType name="TOPIC" content="eltOnly" model="closed" order="many">
+        <AttributeType name="NAME"/>
+        <AttributeType name="COMPILE" dt:type="enumeration" dt:values="YES NO"/>
+        <AttributeType name="FILE"/>
+        <AttributeType name="PARENT"/>
+        <attribute type="NAME"/>
+        <attribute type="COMPILE"/>
+        <attribute type="FILE"/>
+        <attribute type="PARENT"/>
+        <element type="EXAMPLE" maxOccurs="1" minOccurs="0"/>
+        <element type="FUNCTION" maxOccurs="1" minOccurs="1"/>
+        <element type="DESCRIPTION" maxOccurs="1" minOccurs="0"/>
+        <element type="ARG" maxOccurs="*" minOccurs="0"/>
+        <element type="RETURNVALUEDESCRIPTION" maxOccurs="1" minOccurs="0"/>
+        <element type="REQUIREMENTS" maxOccurs="1" minOccurs="0"/>
+        <element type="LINK" maxOccurs="*" minOccurs="0"/>
+    </ElementType>
+
+</Schema>
